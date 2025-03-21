@@ -105,9 +105,6 @@ Both implementations provide three core operations through Agency Swarm tools:
 
 Test individual tools:
 ```bash
-python memory_agency/agents/customer_support/tools/AddMemory.py
-python memory_agency/agents/customer_support/tools/SearchMemory.py
-python memory_agency/agents/customer_support/tools/DeleteMemory.py
 ```
 
 ## License
