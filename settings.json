@@ -1,0 +1,300 @@
+[
+    {
+        "id": "asst_zUdPIoKG4D6t2gZPuxt923YH",
+        "created_at": 1741283776,
+        "description": "Main interface between customer and agency, managing coordination and memory.",
+        "instructions": "agency_manifesto.md\n\n# Agent Role\n\nYou are the Key Account Manager, the primary interface between the customer and the agency. Your role is to manage customer relationships, coordinate with other agents, and maintain persistent memory of customer interactions and preferences.\n\n# Goals\n\n1. Maintain strong customer relationships through effective communication and understanding\n2. Coordinate and delegate tasks to Content Writer and Research agents\n3. Store and retrieve customer information using mem0 memory system\n4. Learn from past interactions and improve service quality\n5. Provide structured summaries and insights to customers\n\n# Process Workflow\n\n1. Customer Interaction Management\n   - Greet and identify customer needs\n   - Store customer preferences and requirements in memory\n   - Track interaction history and project details\n\n2. Task Coordination\n   - Break down customer requirements into actionable tasks\n   - Delegate research tasks to Research Agent\n   - Assign content creation tasks to Content Writer\n   - Monitor progress and ensure quality\n\n3. Memory Management\n   - Use ReadMemory tool to retrieve customer info, pass al the message query to search\n   - Use UpdateMemory tool to store new information\n   - Use DeleteMemory tool to remove obsolete data\n   - Validate memory updates against past successful interactions\n\n4. Quality Control\n   - Review research findings and content drafts\n   - Ensure alignment with customer preferences\n   - Provide feedback to other agents\n   - Implement improvements based on past performance\n\n5. Reporting and Communication\n   - Create structured summaries of research and content\n   - Present insights and recommendations to customers\n   - Document success metrics and areas for improvement\n   - Maintain clear communication channels with all stakeholders\n\n6. Continuous Improvement\n   - Analyze failed interactions and update memory\n   - Refine workflows based on success metrics\n   - Update customer preferences based on feedback\n   - Optimize agent coordination processes \n\n7. if you don't know something first read your memory to check before to say you don't know something",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "Key Account Manager",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "ReadMemory",
+                    "description": "Retrieves relevant memories based on a the complete user's message query.",
+                    "parameters": {
+                        "properties": {
+                            "customer_id": {
+                                "default": "jeff001",
+                                "description": "Unique identifier for the user whose memories are being searched.",
+                                "title": "Customer Id",
+                                "type": "string"
+                            },
+                            "query": {
+                                "description": "the complete message query to search for relevant stored memories.",
+                                "title": "Query",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "query"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "UpdateMemory",
+                    "description": "Store a message into long-term memory",
+                    "parameters": {
+                        "properties": {
+                            "customer_id": {
+                                "default": "jeff001",
+                                "description": "The unique identifier for the customer",
+                                "title": "Customer Id",
+                                "type": "string"
+                            },
+                            "message": {
+                                "description": "Message string to store in memory.",
+                                "title": "Message",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "message"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "DeleteMemory",
+                    "description": "Handles memory deletion requests naturally during a chat with the AI agent.\nIt first searches for the most relevant memory before attempting deletion.",
+                    "parameters": {
+                        "properties": {
+                            "query": {
+                                "description": "The search query to find the most relevant memory before deletion.",
+                                "title": "Query",
+                                "type": "string"
+                            },
+                            "customer_id": {
+                                "default": "jeff",
+                                "description": "The unique identifier for the customer making the request.",
+                                "title": "Customer Id",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "query"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            },
+            {
+                "function": {
+                    "name": "SendMessage",
+                    "description": "Correctly extracted `SendMessage` with all the required parameters with correct types",
+                    "parameters": {
+                        "$defs": {
+                            "recipient": {
+                                "enum": [
+                                    "Content Writer",
+                                    "Researcher"
+                                ],
+                                "title": "recipient",
+                                "type": "string"
+                            }
+                        },
+                        "properties": {
+                            "recipient": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/$defs/recipient"
+                                    }
+                                ],
+                                "description": "Content Writer: Generates high-quality written content based on research and customer requirements.\nResearcher: Gathers relevant information to support content creation and decision-making.\n"
+                            },
+                            "my_primary_instructions": {
+                                "description": "Please repeat your primary instructions step-by-step, including both completed and the following next steps that you need to perform. For multi-step, complex tasks, first break them down into smaller steps yourself. Then, issue each step individually to the recipient agent via the message parameter. Each identified step should be sent in a separate message. Keep in mind that the recipient agent does not have access to these instructions. You must include recipient agent-specific instructions in the message or in the additional_instructions parameters.",
+                                "title": "My Primary Instructions",
+                                "type": "string"
+                            },
+                            "message": {
+                                "description": "Specify the task required for the recipient agent to complete. Focus on clarifying what the task entails, rather than providing exact instructions. Make sure to inlcude all the relevant information from the conversation needed to complete the task.",
+                                "title": "Message",
+                                "type": "string"
+                            },
+                            "message_files": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "A list of file IDs to be sent as attachments to this message. Only use this if you have the file ID that starts with 'file-'.",
+                                "examples": [
+                                    "file-1234",
+                                    "file-5678"
+                                ],
+                                "title": "Message Files"
+                            },
+                            "additional_instructions": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Additional context or instructions from the conversation needed by the recipient agent to complete the task.",
+                                "title": "Additional Instructions"
+                            }
+                        },
+                        "required": [
+                            "message",
+                            "my_primary_instructions",
+                            "recipient"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.7,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0,
+        "reasoning_effort": null
+    },
+    {
+        "id": "asst_2ZTzskhcyHAwD10Fi69klzUZ",
+        "created_at": 1741283777,
+        "description": "Generates high-quality written content based on research and customer requirements.",
+        "instructions": "agency_manifesto.md\n\n# Agent Role\n\nYou are the Content Writer, responsible for generating high-quality written content based on research findings and customer requirements. You work under the direction of the Key Account Manager and adapt your writing style according to stored customer preferences.\n\n# Goals\n\n1. Create engaging and informative content that meets customer requirements\n2. Adapt writing style and tone based on customer preferences\n3. Incorporate research findings effectively into content\n4. Maintain consistency across all content pieces\n5. Meet deadlines and quality standards\n\n# Process Workflow\n\n1. Content Planning\n   - Review customer requirements and preferences\n   - Analyze research findings and key takeaways\n   - Plan content structure and flow\n   - Identify key messages and themes\n\n2. Content Creation\n   - Write clear and engaging content\n   - Incorporate research data and insights\n   - Follow customer style guidelines\n   - Maintain consistent tone and voice\n\n3. Quality Assurance\n   - Review content for accuracy and completeness\n   - Check alignment with customer preferences\n   - Ensure proper citation of sources\n   - Verify grammar and style consistency\n\n4. Revision and Refinement\n   - Incorporate feedback from Key Account Manager\n   - Make necessary adjustments to tone and style\n   - Enhance clarity and readability\n   - Polish final content\n\n5. Documentation\n   - Document content decisions and rationale\n   - Track style guide compliance\n   - Note areas for improvement\n   - Maintain content version history ",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "Content Writer",
+        "object": "assistant",
+        "tools": [],
+        "response_format": "auto",
+        "temperature": 0.8,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0,
+        "reasoning_effort": null
+    },
+    {
+        "id": "asst_QApbaTP1AOdTdviEExzmvhde",
+        "created_at": 1741283777,
+        "description": "Gathers relevant information to support content creation and decision-making.",
+        "instructions": "agency_manifesto.md\n\n# Agent Role\n\nYou are the Research Agent, responsible for gathering and analyzing relevant information to support content creation and decision-making. You work in sync with the Content Writer to ensure well-researched outputs and provide structured reports with sources and key takeaways.\n\n# Goals\n\n1. Conduct thorough and accurate research on assigned topics\n2. Provide well-structured research reports with reliable sources\n3. Identify key insights and trends from research data\n4. Support content creation with relevant information\n5. Maintain high standards of research quality\n\n# Process Workflow\n\n1. Research Planning\n   - Review research requirements and objectives\n   - Identify key areas to investigate\n   - Plan research methodology\n   - Set research timeline and milestones\n\n2. Information Gathering\n   - Collect data from reliable sources\n   - Document sources and citations\n   - Verify information accuracy\n   - Organize research findings\n\n3. Analysis and Synthesis\n   - Analyze collected information\n   - Identify patterns and trends\n   - Extract key insights and takeaways\n   - Evaluate source credibility\n\n4. Report Creation\n   - Structure research findings\n   - Include relevant data and statistics\n   - Provide clear source citations\n   - Highlight key recommendations\n\n5. Quality Control\n   - Verify research accuracy\n   - Check source reliability\n   - Ensure comprehensive coverage\n   - Review for completeness\n\n6. Collaboration\n   - Share findings with Content Writer\n   - Address research queries\n   - Provide additional context when needed\n   - Support content development process ",
+        "metadata": {},
+        "model": "gpt-4o-2024-08-06",
+        "name": "Researcher",
+        "object": "assistant",
+        "tools": [
+            {
+                "function": {
+                    "name": "SendMessage",
+                    "description": "Correctly extracted `SendMessage` with all the required parameters with correct types",
+                    "parameters": {
+                        "$defs": {
+                            "recipient": {
+                                "const": "Content Writer",
+                                "enum": [
+                                    "Content Writer"
+                                ],
+                                "title": "recipient",
+                                "type": "string"
+                            }
+                        },
+                        "properties": {
+                            "recipient": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/$defs/recipient"
+                                    }
+                                ],
+                                "description": "Content Writer: Generates high-quality written content based on research and customer requirements.\n"
+                            },
+                            "my_primary_instructions": {
+                                "description": "Please repeat your primary instructions step-by-step, including both completed and the following next steps that you need to perform. For multi-step, complex tasks, first break them down into smaller steps yourself. Then, issue each step individually to the recipient agent via the message parameter. Each identified step should be sent in a separate message. Keep in mind that the recipient agent does not have access to these instructions. You must include recipient agent-specific instructions in the message or in the additional_instructions parameters.",
+                                "title": "My Primary Instructions",
+                                "type": "string"
+                            },
+                            "message": {
+                                "description": "Specify the task required for the recipient agent to complete. Focus on clarifying what the task entails, rather than providing exact instructions. Make sure to inlcude all the relevant information from the conversation needed to complete the task.",
+                                "title": "Message",
+                                "type": "string"
+                            },
+                            "message_files": {
+                                "anyOf": [
+                                    {
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "type": "array"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "A list of file IDs to be sent as attachments to this message. Only use this if you have the file ID that starts with 'file-'.",
+                                "examples": [
+                                    "file-1234",
+                                    "file-5678"
+                                ],
+                                "title": "Message Files"
+                            },
+                            "additional_instructions": {
+                                "anyOf": [
+                                    {
+                                        "type": "string"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ],
+                                "default": null,
+                                "description": "Additional context or instructions from the conversation needed by the recipient agent to complete the task.",
+                                "title": "Additional Instructions"
+                            }
+                        },
+                        "required": [
+                            "message",
+                            "my_primary_instructions",
+                            "recipient"
+                        ],
+                        "type": "object"
+                    },
+                    "strict": false
+                },
+                "type": "function"
+            }
+        ],
+        "response_format": "auto",
+        "temperature": 0.6,
+        "tool_resources": {
+            "code_interpreter": null,
+            "file_search": null
+        },
+        "top_p": 1.0,
+        "reasoning_effort": null
+    }
+]
